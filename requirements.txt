@@ -2,3 +2,7 @@ fastapi==0.95.1
 hypercorn==0.14.3
 tortoise-orm==0.19.3
 fastapi-jwt==0.1.8
+asyncpg==0.27.0
+
+# error monitoring
+sentry-sdk[fastapi]

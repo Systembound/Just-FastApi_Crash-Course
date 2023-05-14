@@ -1,5 +1,6 @@
 from os import getenv
 
+import sentry_sdk
 from fastapi import FastAPI, Security, Depends
 from tortoise import Tortoise
 
@@ -13,6 +14,7 @@ security_access = JwtAccessBearer("asjdasjsajdajd", auto_error=True)
 
 
 async def db_init():
+    print(getenv("DB_URL"))
     await Tortoise.init(
         db_url=getenv("DB_URL"),
         modules={
@@ -26,10 +28,20 @@ async def close_db():
     await Tortoise.close_connections()
 
 
+def setup_error_monitoring():
+    sentry_sdk.init(
+        dsn=getenv("SENTRY_DSN"),
+        traces_sample_rate=1.0,
+    )
+
+
 @app.on_event("startup")
 async def init():
     # initialize database
     await db_init()
+
+    # others.
+    setup_error_monitoring()
 
 
 @app.on_event("shutdown")
@@ -70,6 +82,11 @@ async def index():
     return {
         "message": "hello"
     }
+
+
+@app.get("/error")
+async def fire_error():
+    raise Exception("hi")
 
 
 @app.post("/test")

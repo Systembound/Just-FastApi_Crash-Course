@@ -3,14 +3,22 @@ version: "3.3"
 services:
 
   db:
-    image: postgres
+    image: postgres:15.3
     restart: always
     environment:
-      POSTGRES_PASSWORD: example
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
   app:
+    env_file:
+      - .env
     build: .
     volumes:
       - ./db:/app/db/
     ports:
       - "8000:80"
+    depends_on:
+      - db
+    links:
+      - db
